@@ -13,5 +13,6 @@ public class Action
 {
     // A vous de jouer
     private int idAction;
+    private String nomAction;
     
 }

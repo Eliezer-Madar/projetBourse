@@ -9,6 +9,7 @@ import ClassesMetier.Action;
 import ClassesMetier.Trader;
 import java.util.ArrayList;
 import java.util.Vector;
+import javax.management.StringValueExp;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -174,6 +175,53 @@ public class FrmPrincipal extends javax.swing.JFrame {
         mesTraders = new ArrayList<>();
         
         // A vous de jouer
+        Trader trad1=new Trader(1, "Enzo");
+        Trader trad2=new Trader(2, "Noa");
+        Trader trad3=new Trader(3, "Lilou");
+        Trader trad4=new Trader(4, "Milo");
+        
+       Action act1 = new Action(1,"Twitter",169.15,159,110);
+       Action act2 = new Action(2,"Apple",171.89,173,54);
+       Action act3 = new Action(3,"Facebook",105.67,98.45,145);
+       Action act4 = new Action(4,"Microsoft",110,113.08,32);
+       Action act5 = new Action(5,"Dell",56.12,54,78);
+       Action act6 = new Action(6,"VMWare",121.56,123.91,43);
+       Action act7 = new Action(7,"IBM",42.61,40.98,126);
+       
+       trad1.getLesActionsDuTrader().add(act1);
+       trad1.getLesActionsDuTrader().add(act2);
+       trad1.getLesActionsDuTrader().add(act7);
+       
+       trad2.getLesActionsDuTrader().add(act6);
+       trad2.getLesActionsDuTrader().add(act2);
+       trad2.getLesActionsDuTrader().add(act4);
+       
+       trad3.getLesActionsDuTrader().add(act6);
+       trad3.getLesActionsDuTrader().add(act7);
+       
+       trad4.getLesActionsDuTrader().add(act5);
+       trad4.getLesActionsDuTrader().add(act3);
+       trad4.getLesActionsDuTrader().add(act7);
+       trad4.getLesActionsDuTrader().add(act1);
+                
+        mesTraders.add(trad1);
+        mesTraders.add(trad2);
+        mesTraders.add(trad3);
+        mesTraders.add(trad4);
+        
+        
+        
+        
+        for(Trader trad : mesTraders )
+            {
+                v= new Vector();
+                v.add(trad.getIdTrader());
+                v.add(trad.getNomTrader());
+                dtmTraders.addRow(v);
+            
+            }
+        
+        
         
         
     }//GEN-LAST:event_formWindowOpened
@@ -181,6 +229,34 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private void tblTradersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTradersMouseClicked
         
         // A vous de jouer
+        dtmActions.getDataVector().removeAllElements();
+        
+        numTrader=Integer.parseInt(tblTraders.getValueAt(tblTraders.getSelectedRow(), 0).toString());
+        double montantReel=0;
+        double montantAchete=0; 
+        
+        for ( Trader trad:mesTraders)
+        {
+            if (trad.getIdTrader()==numTrader)
+            {
+                for (Action act : trad.getLesActionsDuTrader())
+                {
+                    v=new Vector();
+                    v.add(act.getIdAction());
+                    v.add(act.getNomAction());
+                    v.add(act.getValeurAction());
+                    v.add(act.getPrixAction());
+                    v.add(act.getQuantiteAction());
+                    dtmActions.addRow(v);
+                    
+                    montantReel= montantReel+(act.getValeurAction()*act.getQuantiteAction());
+                    montantAchete= montantAchete+(act.getPrixAction()*act.getQuantiteAction());
+                    
+                }
+                lblPortefeuille.setText(String.valueOf(Math.round(montantReel-montantAchete)));
+            }
+        }
+        
         
     }//GEN-LAST:event_tblTradersMouseClicked
 
@@ -188,12 +264,66 @@ public class FrmPrincipal extends javax.swing.JFrame {
         
         // A vous de jouer
         
+        numAction=Integer.parseInt(tblActions.getValueAt(tblActions.getSelectedRow(), 0).toString());
+        for(Trader trad : mesTraders)
+        {
+            if(trad.getIdTrader()==numTrader)
+            {
+                for (Action act : trad.getLesActionsDuTrader())
+                {
+                    if(act.getIdAction()==numAction)
+                    {
+                        double difference= Math.round((act.getQuantiteAction()*act.getValeurAction())-(act.getPrixAction()*act.getQuantiteAction()));
+                        if(difference>=0)
+                        {
+                            lblMessage.setText("Vous gagnez de l'argent sur cette action : "+ String.valueOf(difference));
+                        }
+                        else
+                        {
+                            lblMessage.setText("Vous perdez de l'argent sur cette action : "+ String.valueOf(difference));
+                        }
+                    }
+                }
+            }
+        }       
     }//GEN-LAST:event_tblActionsMouseClicked
 
     private void btnVendreMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnVendreMouseClicked
         
         // A vous de jouer
-        
+        if (tblActions.getSelectedRow()==0)
+        {
+             JOptionPane.showMessageDialog(this,  "Sélectionner une action", "Choix de l'action", JOptionPane.ERROR_MESSAGE);
+        }
+        else if (txtQuantiteVendue.getText().compareTo("")==0)
+                {
+                    JOptionPane.showMessageDialog(this, "Veuillez saisir une quantité", "Erreur Quantité", JOptionPane.ERROR_MESSAGE);
+                }
+        else if (Integer.parseInt( txtQuantiteVendue.getText())>Integer.parseInt(tblActions.getValueAt(tblActions.getSelectedRow(), 4).toString()))
+        {
+            JOptionPane.showMessageDialog(this, "Vous ne pouvez pas vendre plus que ce que vous ne possédez", "Quantité vendue" ,JOptionPane.ERROR_MESSAGE);
+        }
+        else
+        {
+            for (Trader trad : mesTraders)
+            {
+                if (trad.getIdTrader()==numTrader)
+                {
+                    for (Action act : trad.getLesActionsDuTrader())
+                            {
+                                if (act.getIdAction()==numAction)
+                                {
+                                     if (Integer.parseInt(txtQuantiteVendue.getText())==Integer.parseInt(tblActions.getValueAt(tblActions.getSelectedRow(), 4).toString()))
+                                     {
+                                         trad.getLesActionsDuTrader().remove(act);
+                                     }
+                                }
+                            }
+                }
+            }
+           
+        }
+       
     }//GEN-LAST:event_btnVendreMouseClicked
 
     /**
